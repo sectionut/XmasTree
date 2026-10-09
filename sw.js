@@ -1,5 +1,5 @@
 // Offline support: serve the app from cache, refresh the cache when online.
-const CACHE = "xmastree-v1";
+const CACHE = "xmastree-v2";
 const FILES = ["./", "index.html", "proto.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {

@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1712">
+<title>Xmas Tree</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #0c1712;
+    --bg2: #12241b;
+    --card: #162b21;
+    --line: #24402f;
+    --text: #eef4ef;
+    --muted: #9db3a4;
+    --gold: #f4c95d;
+    --red: #e5484d;
+    --green: #3fb96b;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { background: var(--bg) radial-gradient(120% 60% at 50% 0%, #1b3a29 0%, var(--bg) 60%) no-repeat; min-height: 100%; }
+  body {
+    margin: 0; color: var(--text);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  }
+  main { max-width: 480px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 18px; }
+  header svg { width: 36px; height: 36px; flex: none; }
+  header h1 { font-size: 22px; margin: 0; letter-spacing: .2px; }
+  .pill { margin-left: auto; font-size: 13px; padding: 4px 10px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .pill.on { color: var(--green); border-color: #2e6b45; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  label { display: block; color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+  input[type=password] {
+    width: 100%; font-size: 17px; padding: 13px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--bg2); color: var(--text);
+  }
+  input[type=password]:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .check { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; color: var(--text); font-size: 15px; }
+  .check input { width: 20px; height: 20px; accent-color: var(--green); }
+  button { font: inherit; cursor: pointer; border: none; }
+  .primary {
+    width: 100%; margin-top: 14px; padding: 14px; border-radius: 12px; font-weight: 650; font-size: 17px;
+    background: var(--gold); color: #2a1f05;
+  }
+  .primary:disabled { opacity: .6; }
+  .ghost { background: transparent; color: var(--muted); padding: 10px; font-size: 14px; text-decoration: underline; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .big-toggle { display: flex; align-items: center; justify-content: space-between; }
+  .big-toggle .label { font-size: 18px; font-weight: 600; }
+  .big-toggle .sub { color: var(--muted); font-size: 14px; }
+  .switch { position: relative; width: 58px; height: 34px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; border-radius: 99px; background: #33473b; transition: .2s; }
+  .switch span::after { content: ""; position: absolute; width: 26px; height: 26px; left: 4px; top: 4px; border-radius: 50%; background: #fff; transition: .2s; }
+  .switch input:checked + span { background: var(--green); }
+  .switch input:checked + span::after { transform: translateX(24px); }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .mode { padding: 12px 6px; border-radius: 12px; background: var(--bg2); color: var(--text); border: 1px solid var(--line); font-size: 14px; font-weight: 550; }
+  .mode.active { border-color: var(--gold); background: #2a2a14; color: var(--gold); }
+  .swatches { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .swatch { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--line); }
+  .swatch.active { border-color: #fff; box-shadow: 0 0 0 2px var(--gold); }
+  .picker { position: relative; width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 2px dashed var(--muted); }
+  .picker input { position: absolute; inset: -10px; width: 60px; height: 60px; border: none; padding: 0; opacity: 0; }
+  .picker::after { content: "+"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 20px; pointer-events: none; }
+  .slider { margin: 6px 0 14px; }
+  .slider:last-child { margin-bottom: 0; }
+  .slider .row { color: var(--muted); font-size: 14px; margin-bottom: 4px; }
+  .slider .row b { color: var(--text); font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: var(--gold); height: 28px; }
+  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  input[type=time] { width: 100%; font-size: 17px; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); color: var(--text); color-scheme: dark; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day { padding: 10px 0; border-radius: 10px; background: var(--bg2); color: var(--muted); border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
+  .day.on { background: #1f3f2c; color: var(--green); border-color: #2e6b45; }
+  .save { width: 100%; margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--bg2); color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
+  .save.dirty { background: var(--gold); color: #2a1f05; border-color: var(--gold); }
+  .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .note.warn { color: var(--gold); }
+  .footer { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; padding: 4px 2px; }
+  .hidden { display: none !important; }
+  .msg { margin-top: 12px; font-size: 14px; color: var(--muted); min-height: 20px; }
+  .msg.err { color: #ff8a8d; }
+  .toast {
+    position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+    background: #2b1416; color: #ffd6d7; border: 1px solid #5c2a2d; padding: 10px 16px; border-radius: 12px; font-size: 14px;
+    opacity: 0; transition: .25s; pointer-events: none; max-width: 90vw; text-align: center;
+  }
+  .toast.good { background: #14301f; color: #c9f2d6; border-color: #2e6b45; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .busy { pointer-events: none; opacity: .65; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <polygon points="20,4 21.8,8.6 26.6,8.6 22.7,11.4 24.2,16 20,13.2 15.8,16 17.3,11.4 13.4,8.6 18.2,8.6" fill="#f4c95d"/>
+      <polygon points="20,12 31,26 9,26" fill="#3fb96b"/>
+      <polygon points="20,18 34,34 6,34" fill="#2f9a57"/>
+      <rect x="17.5" y="34" width="5" height="4" rx="1" fill="#8a5a3b"/>
+      <circle cx="16" cy="24" r="1.6" fill="#e5484d"/><circle cx="24" cy="29" r="1.6" fill="#f4c95d"/><circle cx="14" cy="31" r="1.6" fill="#7cc4ff"/>
+    </svg>
+    <h1>Xmas Tree</h1>
+    <span id="conn" class="pill">Not connected</span>
+  </header>
+
+  <!-- Unsupported browser -->
+  <section id="unsupported" class="card hidden">
+    <h2>Can't use Bluetooth here</h2>
+    <p style="margin:0">Open this page in <b>Chrome on Android</b>. Other browsers (and iPhones) don't let web pages use Bluetooth.</p>
+  </section>
+
+  <!-- Login -->
+  <section id="login" class="card hidden">
+    <h2>Log in</h2>
+    <div id="pwBlock">
+      <label for="pw">Tree password</label>
+      <input id="pw" type="password" autocomplete="current-password" enterkeyhint="go">
+      <label class="check"><input id="remember" type="checkbox" checked> Remember on this phone</label>
+    </div>
+    <div id="savedBlock" class="hidden">
+      <p style="margin:0 0 4px">Password remembered on this phone.</p>
+      <button id="forget" class="ghost" style="padding-left:0">Use a different password</button>
+    </div>
+    <button id="connect" class="primary">Connect to tree</button>
+    <div id="loginMsg" class="msg"></div>
+  </section>
+
+  <!-- Controls -->
+  <section id="controls" class="hidden">
+    <div class="card big-toggle">
+      <div>
+        <div class="label">Lights</div>
+        <div id="litText" class="sub">—</div>
+      </div>
+      <label class="switch"><input id="power" type="checkbox"><span></span></label>
+    </div>
+
+    <div class="card">
+      <h2>Animation</h2>
+      <div id="modes" class="modes"></div>
+    </div>
+
+    <div class="card">
+      <h2>Color</h2>
+      <div id="swatches" class="swatches"></div>
+      <p class="note" id="colorNote">Used by Solid, Breathe, Twinkle and Chase.</p>
+    </div>
+
+    <div class="card">
+      <h2>Brightness &amp; speed</h2>
+      <div class="slider">
+        <div class="row"><span>Brightness</span><b id="brightVal">—</b></div>
+        <input id="bright" type="range" min="1" max="100" step="1">
+      </div>
+      <div class="slider">
+        <div class="row"><span>Speed</span><b id="speedVal">—</b></div>
+        <input id="speed" type="range" min="1" max="10" step="1">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Schedule</h2>
+        <label class="switch"><input id="schedOn" type="checkbox"><span></span></label>
+      </div>
+      <div class="times">
+        <div><label for="tOn">Turn on</label><input id="tOn" type="time"></div>
+        <div><label for="tOff">Turn off</label><input id="tOff" type="time"></div>
+      </div>
+      <div id="days" class="days"></div>
+      <button id="saveSched" class="save">Save schedule</button>
+      <p id="schedNote" class="note"></p>
+    </div>
+
+    <div class="footer">
+      <span id="clock">—</span>
+      <span>
+        <button id="disconnect" class="ghost">Disconnect</button>
+        <button id="logout" class="ghost">Log out</button>
+      </span>
+    </div>
+  </section>
+
+  <!-- Disconnected -->
+  <section id="lost" class="card hidden">
+    <h2>Disconnected</h2>
+    <p style="margin:0">The tree is out of range or restarted.</p>
+    <button id="reconnect" class="primary">Reconnect</button>
+    <div id="lostMsg" class="msg"></div>
+  </section>
+</main>
+<div id="toast" class="toast"></div>
+
+<script src="proto.js"></script>
+<script>
+"use strict";
+const P = TreeProto, U = P.UUIDS;
+const $ = (s) => document.querySelector(s);
+const LS_KEY = "xmastree.login.v1";
+
+const MODE_NAMES = { solid: "Solid", breathe: "Breathe", twinkle: "Twinkle", sparkle: "Sparkle",
+                     chase: "Chase", rainbow: "Rainbow", huecycle: "Color cycle" };
+const SWATCHES = ["#ff2a2a", "#2aff4a", "#ffffff", "#ffb347", "#f4c95d", "#3d7bff", "#b44dff", "#ff4fa3"];
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];   // 0 = Monday, matches the Pi
+
+let device = null, chars = null, key = null, nonce = null, seq = 0;
+let state = null, queue = Promise.resolve(), schedDirty = false, wantConnected = false;
+
+// ---------- small helpers ----------
+function show(id) {
+  for (const s of ["unsupported", "login", "controls", "lost"]) $("#" + s).classList.toggle("hidden", s !== id);
+}
+function setPill(text, on) { const p = $("#conn"); p.textContent = text; p.classList.toggle("on", !!on); }
+let toastTimer;
+function toast(text, good) {
+  const t = $("#toast"); t.textContent = text; t.classList.toggle("good", !!good); t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+}
+function loadSaved() { try { return JSON.parse(localStorage.getItem(LS_KEY)); } catch { return null; } }
+function saveLogin(v) { try { v ? localStorage.setItem(LS_KEY, JSON.stringify(v)) : localStorage.removeItem(LS_KEY); } catch {} }
+function friendlyError(err) {
+  return ({ auth: "Wrong password", locked: "Too many wrong tries. Wait 30 seconds.",
+            "no password set on the tree": "The tree has no password yet. Run the setup script on the Pi.",
+            stale: "Session expired, try again" })[err] || err;
+}
+
+function renderLogin(msg, isErr) {
+  const saved = loadSaved();
+  $("#pwBlock").classList.toggle("hidden", !!saved);
+  $("#savedBlock").classList.toggle("hidden", !saved);
+  $("#loginMsg").textContent = msg || "";
+  $("#loginMsg").classList.toggle("err", !!isErr);
+  show("login");
+}
+
+// ---------- Bluetooth session ----------
+async function readJson(ch) { return P.parseJson(await ch.readValue()); }
+
+async function handshake() {
+  const ch = await readJson(chars.challenge);
+  nonce = ch.n; seq = 0;
+  return ch;
+}
+
+function send(payload) {
+  const run = async (retried) => {
+    seq += 1;
+    const my = seq;
+    await chars.command.writeValueWithResponse(await P.buildFrame(key, nonce, my, payload));
+    const st = await readJson(chars.status);
+    if ((st.err === "stale" || (st.err === "auth" && my > 1)) && !retried) {
+      // another phone started a session in between; start a fresh one and retry once
+      await handshake();
+      return run(true);
+    }
+    if (st.s !== my) throw new Error("The tree didn't answer");
+    if (st.state) applyState(st.state);
+    return st;
+  };
+  const p = queue.then(() => run(false), () => run(false));
+  queue = p.catch(() => {});
+  return p;
+}
+
+async function command(payload) {
+  if (!chars) return;
+  try {
+    const st = await send(payload);
+    if (!st.ok) toast(friendlyError(st.err));
+    return st;
+  } catch (e) {
+    if (device && device.gatt.connected) toast(e.message || String(e));
+  }
+}
+
+async function connect(fromReconnect) {
+  if (!navigator.bluetooth) return show("unsupported");
+  const saved = loadSaved();
+  const password = $("#pw").value;
+  if (!fromReconnect && !key && !password && !saved) return renderLogin("Enter the password", true);
+
+  const btn = fromReconnect ? $("#reconnect") : $("#connect");
+  const msgEl = fromReconnect ? $("#lostMsg") : $("#loginMsg");
+  btn.disabled = true; msgEl.classList.remove("err");
+  let reached = false;   // true once we've talked to the tree
+  try {
+    if (!device) {
+      msgEl.textContent = "Pick “XmasTree” from the list…";
+      device = await navigator.bluetooth.requestDevice({ filters: [{ services: [U.service] }] });
+      device.addEventListener("gattserverdisconnected", onDisconnected);
+    }
+    msgEl.textContent = "Connecting…";
+    const server = await device.gatt.connect();
+    const svc = await server.getPrimaryService(U.service);
+    chars = {
+      challenge: await svc.getCharacteristic(U.challenge),
+      command: await svc.getCharacteristic(U.command),
+      status: await svc.getCharacteristic(U.status),
+    };
+    const ch = await handshake();
+    reached = true;
+
+    if (!key || !fromReconnect) {
+      if (password) {
+        msgEl.textContent = "Checking password…";
+        key = await P.deriveKey(password, ch.salt, ch.it);
+      } else if (saved && saved.salt === ch.salt && saved.it === ch.it) {
+        key = P.hexToBytes(saved.key);
+      } else {
+        saveLogin(null);
+        throw new Error("The tree's password changed. Enter the new one.");
+      }
+    }
+
+    const hello = await send({ op: "hello" });
+    if (!hello.ok) {
+      if (hello.err === "auth") { saveLogin(null); key = null; }
+      throw new Error(friendlyError(hello.err));
+    }
+    if (password) saveLogin($("#remember").checked ? { key: P.bytesToHex(key), salt: ch.salt, it: ch.it } : null);
+    $("#pw").value = "";
+    wantConnected = true;
+
+    // Keep the tree's clock right so the schedule works offline.
+    await send({ op: "time", epoch: Date.now(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
+    setPill("Connected", true);
+    show("controls");
+  } catch (e) {
+    const cancelled = e && e.name === "NotFoundError";
+    wantConnected = false;
+    if (device && device.gatt.connected) device.gatt.disconnect();
+    // Couldn't reach the tree at all: show the device picker again next time.
+    if (!reached && !fromReconnect) device = null;
+    chars = null;
+    msgEl.textContent = cancelled ? "" : (e.message || String(e));
+    msgEl.classList.toggle("err", !cancelled);
+    if (!fromReconnect) renderLogin(msgEl.textContent, !cancelled);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function onDisconnected() {
+  chars = null;
+  setPill("Not connected", false);
+  if (wantConnected) { $("#lostMsg").textContent = ""; show("lost"); }
+}
+
+function disconnect(forget) {
+  wantConnected = false;
+  if (device && device.gatt.connected) device.gatt.disconnect();
+  chars = null; key = forget ? null : key;
+  if (forget) { saveLogin(null); device = null; }
+  setPill("Not connected", false);
+  renderLogin(forget ? "Logged out" : "Disconnected");
+}
+
+// ---------- UI ----------
+function buildUi() {
+  const modes = $("#modes");
+  for (const [id, name] of Object.entries(MODE_NAMES)) {
+    const b = document.createElement("button");
+    b.className = "mode"; b.textContent = name; b.dataset.mode = id;
+    b.onclick = () => command({ op: "set", settings: { mode: id } });
+    modes.append(b);
+  }
+  const sw = $("#swatches");
+  for (const c of SWATCHES) {
+    const b = document.createElement("button");
+    b.className = "swatch"; b.style.background = c; b.dataset.color = c; b.setAttribute("aria-label", c);
+    b.onclick = () => command({ op: "set", settings: { color: c } });
+    sw.append(b);
+  }
+  const pick = document.createElement("label");
+  pick.className = "picker"; pick.title = "Custom color";
+  pick.innerHTML = '<input id="custom" type="color">';
+  sw.append(pick);
+  $("#custom").addEventListener("change", (e) => command({ op: "set", settings: { color: e.target.value } }));
+
+  const days = $("#days");
+  DAY_NAMES.forEach((n, i) => {
+    const b = document.createElement("button");
+    b.className = "day"; b.textContent = n[0] + n[1]; b.dataset.day = i;
+    b.onclick = () => { b.classList.toggle("on"); markSchedDirty(); };
+    days.append(b);
+  });
+
+  $("#power").addEventListener("change", (e) => command({ op: "set", settings: { power: e.target.checked } }));
+  $("#bright").addEventListener("input", (e) => ($("#brightVal").textContent = e.target.value + "%"));
+  $("#bright").addEventListener("change", (e) => command({ op: "set", settings: { brightness: +e.target.value } }));
+  $("#speed").addEventListener("input", (e) => ($("#speedVal").textContent = e.target.value));
+  $("#speed").addEventListener("change", (e) => command({ op: "set", settings: { speed: +e.target.value } }));
+  for (const id of ["#schedOn", "#tOn", "#tOff"]) $(id).addEventListener("input", markSchedDirty);
+  $("#saveSched").onclick = saveSchedule;
+
+  $("#connect").onclick = () => connect(false);
+  $("#pw").addEventListener("keydown", (e) => { if (e.key === "Enter") connect(false); });
+  $("#forget").onclick = () => { saveLogin(null); key = null; renderLogin(); $("#pw").focus(); };
+  $("#reconnect").onclick = () => connect(true);
+  $("#disconnect").onclick = () => disconnect(false);
+  $("#logout").onclick = () => disconnect(true);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && chars) command({ op: "get" });
+  });
+}
+
+function markSchedDirty() { schedDirty = true; $("#saveSched").classList.add("dirty"); }
+
+async function saveSchedule() {
+  const days = [...document.querySelectorAll(".day.on")].map((b) => +b.dataset.day);
+  const sched = { enabled: $("#schedOn").checked, on: $("#tOn").value || "08:00", off: $("#tOff").value || "17:00", days };
+  if (sched.enabled && days.length === 0) return toast("Pick at least one day");
+  const st = await command({ op: "schedule", schedule: sched });
+  if (st && st.ok) {
+    schedDirty = false; $("#saveSched").classList.remove("dirty");
+    applyState(st.state);
+    toast("Schedule saved", true);
+  }
+}
+
+function fmt12(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+}
+
+function applyState(s) {
+  state = s;
+  $("#power").checked = s.power;
+  $("#litText").textContent = !s.power ? "Off" : s.lit ? "On" : "Off until the schedule turns them on";
+  for (const b of document.querySelectorAll(".mode")) b.classList.toggle("active", b.dataset.mode === s.mode);
+  let matched = false;
+  for (const b of document.querySelectorAll(".swatch")) {
+    const on = b.dataset.color === s.color; b.classList.toggle("active", on); matched ||= on;
+  }
+  $(".picker").style.background = matched ? "" : s.color;
+  $("#custom").value = s.color;
+  $("#colorNote").textContent = ["rainbow", "huecycle", "sparkle"].includes(s.mode)
+    ? "This animation makes its own colors." : "Used by Solid, Breathe, Twinkle and Chase.";
+  if (document.activeElement !== $("#bright")) { $("#bright").value = s.brightness; $("#brightVal").textContent = s.brightness + "%"; }
+  if (document.activeElement !== $("#speed")) { $("#speed").value = s.speed; $("#speedVal").textContent = s.speed; }
+
+  const sc = s.schedule;
+  if (!schedDirty) {
+    $("#schedOn").checked = sc.enabled;
+    $("#tOn").value = sc.on; $("#tOff").value = sc.off;
+    for (const b of document.querySelectorAll(".day")) b.classList.toggle("on", sc.days.includes(+b.dataset.day));
+  }
+  const note = $("#schedNote");
+  if (!sc.enabled) { note.textContent = "Off: lights follow the switch above."; note.className = "note"; }
+  else if (!s.clock_ok) { note.textContent = "Paused: the tree's clock isn't set. Connecting from this page sets it."; note.className = "note warn"; }
+  else {
+    const dl = sc.days.length === 7 ? "every day" : sc.days.map((d) => DAY_NAMES[d]).join(", ");
+    note.textContent = sc.on === sc.off ? `On all day, ${dl}.` : `On ${fmt12(sc.on)} – ${fmt12(sc.off)}, ${dl}.`;
+    note.className = "note";
+  }
+  $("#clock").textContent = `Tree clock: ${s.pi_time}${s.clock_ok ? "" : " (not set)"}`;
+}
+
+// ---------- start ----------
+buildUi();
+if (!navigator.bluetooth) show("unsupported"); else renderLogin();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
